@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: clear-solutions-task
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: cs_admin
+    password: 1234
+    url: jdbc:postgresql://localhost:5432/cs_admin
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: true
+  sql:
+    init:
+      mode: always # if you already created db with data, you can switch this to 'embedded'
+      data-locations:
+        - classpath*:/scripts/schema.sql
+        - classpath*:/scripts/data.sql
+
+springdoc:
+  swagger-ui:
+    operations-sorter: method
+    path: /swagger-ui-custom.html
+
+required:
+  users:
+    age: 18
+
+inspiration:
+  ms: 12345667
+
+refresh:
+  token:
+    millis: 600000000
