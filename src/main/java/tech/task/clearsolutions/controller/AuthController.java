@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import tech.task.clearsolutions.component.JwtUtils;
+import tech.task.clearsolutions.domain.RefreshToken;
 import tech.task.clearsolutions.dto.*;
 import tech.task.clearsolutions.mapper.UserMapper;
 import tech.task.clearsolutions.service.RefreshTokenService;
@@ -80,13 +82,27 @@ public class AuthController {
     })
     @PostMapping("/signup")
     public ResponseEntity<UserResponse> registerUser(@RequestBody @Valid
-                                                   UserCreateRequest createRequest) {
+                                                     UserCreateRequest createRequest) {
         var user = userService.createUser(userMapper.getDomainFromCreateRequest(createRequest));
         log.debug("REGISTER-USER === with email: {}, timestamp: {}",
                 user.getEmail(), LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(userMapper.getResponseFromDomain(user));
+    }
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<TokenRefreshResponse> refreshToken(@RequestBody @Valid TokenRefreshRequest refreshRequest) {
+        String requestRefreshToken = refreshRequest.getRefreshToken();
+
+        return refreshTokenService.getByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUserInfo)
+                .map(user -> {
+                    String accessToken = jwtUtils.generateTokenFromEmail(user.getEmail());
+                    return ResponseEntity.ok(new TokenRefreshResponse(accessToken, requestRefreshToken));
+                })
+                .orElseThrow(() -> new EntityNotFoundException("Refresh token not found! Re login please!"));
     }
 
 }

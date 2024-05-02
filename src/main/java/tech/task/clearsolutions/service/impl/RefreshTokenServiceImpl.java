@@ -1,17 +1,18 @@
 package tech.task.clearsolutions.service.impl;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tech.task.clearsolutions.domain.RefreshToken;
 import tech.task.clearsolutions.domain.User;
+import tech.task.clearsolutions.exception.TokenRefreshException;
 import tech.task.clearsolutions.repository.RefreshTokenRepository;
 import tech.task.clearsolutions.service.RefreshTokenService;
 import tech.task.clearsolutions.service.UserService;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -40,6 +41,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         return createNewRefreshToken(user);
     }
 
+    @Override
+    public boolean isUserHasRefreshToken(User user) {
+        return refreshTokenRepository.findByUserInfo(user).isPresent();
+    }
+
     private RefreshToken createNewRefreshToken(User user) {
         RefreshToken refreshToken = RefreshToken.builder()
                 .userInfo(user)
@@ -51,15 +57,21 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public RefreshToken getByToken(String token) {
-        var refreshToken = refreshTokenRepository.findByToken(token).orElseThrow(
-                () -> new EntityNotFoundException("Refresh token not found! Re login please!"));
+    public Optional<RefreshToken> getByToken(String token) {
+        var refreshToken = refreshTokenRepository.findByToken(token);
         log.info("Getting refresh token for user with token: {}", token);
         return refreshToken;
     }
 
     @Override
-    public boolean isUserHasRefreshToken(User user) {
-        return refreshTokenRepository.findByUserInfo(user).isPresent();
+    public RefreshToken verifyExpiration(RefreshToken token) {
+        if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
+            refreshTokenRepository.delete(token);
+            log.info("Refresh token has expired!");
+            throw new TokenRefreshException(token.getToken(), "Refresh token was expired. Please make a new signin request");
+        }
+
+        return token;
     }
+
 }
