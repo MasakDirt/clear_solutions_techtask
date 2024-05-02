@@ -39,7 +39,8 @@ public class SecurityConfig {
         try {
             httpSecurity.authorizeHttpRequests(request ->
                     request.requestMatchers("/api/v1/auth/login", "/api/v1/auth/signup",
-                                    "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                    "/api/v1/auth/refresh-token", "/swagger-ui/**",
+                                    "/v3/api-docs/**").permitAll()
                             .anyRequest()
                             .authenticated());
         } catch (Exception e) {

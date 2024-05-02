@@ -61,7 +61,7 @@ public class AuthController {
         var user = userService.proceedLogin(loginRequest);
         String email = user.getEmail();
         String accessToken = jwtUtils.generateTokenFromEmail(email);
-        userService.setRefreshToken(user, refreshTokenService.createRefreshToken(email));
+        userService.setRefreshToken(email, refreshTokenService.createRefreshToken(email));
         log.debug("LOGIN === with email: {}, timestamp: {}", email, LocalDateTime.now());
 
         return ResponseEntity
@@ -91,7 +91,22 @@ public class AuthController {
                 .body(userMapper.getResponseFromDomain(user));
     }
 
-    @PostMapping("/refreshtoken")
+    @Operation(summary = "Refresh token")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Refresh access token",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = TokenRefreshResponse.class))),
+            @ApiResponse(responseCode = "400", description = "BadRequest",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "NotFound",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "500", description = "InternalServerError",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class))),
+    })
+    @PostMapping("/refresh-token")
     public ResponseEntity<TokenRefreshResponse> refreshToken(@RequestBody @Valid TokenRefreshRequest refreshRequest) {
         String requestRefreshToken = refreshRequest.getRefreshToken();
 

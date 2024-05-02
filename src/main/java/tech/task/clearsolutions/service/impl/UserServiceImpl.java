@@ -124,9 +124,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void setRefreshToken(User user, RefreshToken refreshToken) {
+    public void setRefreshToken(String email, RefreshToken refreshToken) {
+        var user = getByEmail(email);
         user.setRefreshToken(refreshToken);
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
     }
 
 }

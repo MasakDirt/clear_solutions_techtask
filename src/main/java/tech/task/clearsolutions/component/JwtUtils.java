@@ -15,7 +15,6 @@ import static java.lang.System.currentTimeMillis;
 @Slf4j
 @Component
 public class JwtUtils {
-
     private static final Key KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
 
     @Value("${inspiration.ms}")

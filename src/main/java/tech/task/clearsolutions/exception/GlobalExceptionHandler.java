@@ -8,6 +8,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,14 +16,12 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 import org.springframework.web.server.ResponseStatusException;
 import tech.task.clearsolutions.dto.ErrorResponse;
 
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatusException(
@@ -59,15 +58,15 @@ public class GlobalExceptionHandler {
         return getErrorResponse(request, HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler({AccessDeniedException.class})
-    public ResponseEntity<ErrorResponse> handleAccessDeniedException(
+    @ExceptionHandler({AccessDeniedException.class, TokenRefreshException.class})
+    public ResponseEntity<ErrorResponse> handleForbiddenException(
             HttpServletRequest request, RuntimeException ex) {
         return getErrorResponse(request, HttpStatus.FORBIDDEN, ex.getMessage());
     }
 
-    @ExceptionHandler({EntityNotFoundException.class})
+    @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFoundExceptions(
-            HttpServletRequest request, RuntimeException ex) {
+            HttpServletRequest request, EntityNotFoundException ex) {
         return getErrorResponse(request, HttpStatus.NOT_FOUND, ex.getMessage());
     }
 

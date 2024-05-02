@@ -13,10 +13,10 @@ import tech.task.clearsolutions.domain.User;
 import tech.task.clearsolutions.repository.RefreshTokenRepository;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @SpringBootTest
@@ -66,15 +66,15 @@ public class RefreshTokenServiceTests {
         expectedRefreshToken.setExpiryDate(Instant.now());
         refreshTokenRepository.save(expectedRefreshToken);
 
-        RefreshToken actualRefreshToken = refreshTokenService.getByToken(token);
+        Optional<RefreshToken> actualRefreshToken = refreshTokenService.getByToken(token);
 
-        assertEquals(expectedRefreshToken, actualRefreshToken);
+        assertTrue(actualRefreshToken.isPresent());
+        assertEquals(expectedRefreshToken, actualRefreshToken.get());
     }
 
     @Test
     public void testGetByTokenNotFound_Spring() {
-        assertThrows(EntityNotFoundException.class, () ->
-                refreshTokenService.getByToken("invalid"));
+        assertTrue(refreshTokenService.getByToken("invalid").isEmpty());
     }
 
 }

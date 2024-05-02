@@ -2,6 +2,7 @@ package tech.task.clearsolutions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -31,7 +32,9 @@ public class TestAdvice {
     }
 
     public static <T> String asJsonString(final T object) throws JsonProcessingException {
-        return new ObjectMapper().registerModule(new JavaTimeModule()).writeValueAsString(object);
+        return new ObjectMapper().registerModule(new JavaTimeModule())
+                .setDateFormat(new StdDateFormat().withColonInTimeZone(false))
+                .writeValueAsString(object);
     }
 
 }

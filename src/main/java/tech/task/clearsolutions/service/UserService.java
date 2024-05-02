@@ -28,6 +28,6 @@ public interface UserService {
 
     User proceedLogin(LoginRequest loginRequest);
 
-    void setRefreshToken(User user, RefreshToken refreshToken);
+    void setRefreshToken(String email, RefreshToken refreshToken);
 
 }

@@ -11,7 +11,6 @@ import tech.task.clearsolutions.service.TokenBlacklistService;
 @Service
 @AllArgsConstructor
 public class TokenBlacklistServiceImpl implements TokenBlacklistService {
-
     private final TokenBlacklistRepository tokenBlacklistRepository;
 
     @Override

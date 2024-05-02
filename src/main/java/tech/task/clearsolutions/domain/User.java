@@ -57,7 +57,7 @@ public class User implements UserDetails {
             message="Please provide a valid phone number")
     private String phoneNumber;
 
-    @OneToOne(mappedBy = "userInfo", cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "refresh_token_id", referencedColumnName = "id")
     private RefreshToken refreshToken;
 
